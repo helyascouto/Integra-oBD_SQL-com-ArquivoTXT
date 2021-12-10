@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace IntegraçãoBD_TXT.Model.Data
 {
@@ -11,13 +13,14 @@ namespace IntegraçãoBD_TXT.Model.Data
     {
         public Curso curso = new Curso();
         public Aluno aluno = new Aluno();
-        Pessoa pessoa = new Pessoa();
+        public Pessoa pessoa = new Pessoa();
+
 
         StreamReader sr = new StreamReader(@"C:\Users\Elias Couto\source\repos\IntegraçãoBD_TXT\IntegraçãoBD_TXT\Data\ArquivoTexto.txt");
         string linha;
         char ax;
         char dig = 'Z';
-
+        int quatAlunos, quatPessoas,id;
         public void LerArquivo()
         {
             //Recebe dados do aquivo txt 
@@ -50,39 +53,38 @@ namespace IntegraçãoBD_TXT.Model.Data
                     curso.matricula = subs[1];
                     curso.IdCurso = int.Parse(subs[2]);
                     curso.nomeCurso = subs[3];
+                    curso.gravarCurso();
 
 
                 }
                 else if (dig == 'Z')
                 {
-
+                    pessoa.idPessoa = id;
                     pessoa.digito = subs[0];
                     pessoa.nome = subs[1];
                     pessoa.telefone = subs[2];
                     pessoa.cidade = subs[3];
                     pessoa.RG = subs[4];
                     pessoa.CPF = subs[5];
-
+                    pessoa.gravarPessoa();
 
                 }
 
 
                 if (VerificarAluno(dig, ax))
                 {
-
-                    aluno.digito = pessoa.digito;
-                    aluno.nome = pessoa.nome;
-                    aluno.telefone = pessoa.telefone;
-                    aluno.cidade = pessoa.cidade;
-                    aluno.RG = pessoa.RG;
-                    aluno.CPF = pessoa.CPF;
-                    aluno.curso = new Curso(curso.digito, curso.matricula, curso.IdCurso, curso.nomeCurso);
-                   
+                    id++;
+                    aluno.fk_Pessoa = pessoa.idPessoa = id; 
+                    aluno.matricula = int.Parse(curso.matricula);
+                    aluno.fk_curso = curso.IdCurso;
+                    aluno.gravarAluno();
+                    quatAlunos++;
 
                 }
-
-
-
+                else
+                {
+                    quatPessoas++;
+                }
 
 
                 linha = sr.ReadLine();
@@ -91,9 +93,14 @@ namespace IntegraçãoBD_TXT.Model.Data
             }
             sr.Close();
 
+            MessageBox.Show("Arquivo lido e gravado com sucesso!", "Sucesso!",MessageBoxButtons.OK,MessageBoxIcon.Information);
 
 
+        }
 
+       public void mostrar()
+        {
+            MessageBox.Show("Pessoas "+quatPessoas+" Alunos "+quatAlunos, "Sucesso!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private bool VerificarAluno(char _dig, char _ax)
@@ -111,5 +118,7 @@ namespace IntegraçãoBD_TXT.Model.Data
             }
             return res;
         }
+
+
     }
 }
